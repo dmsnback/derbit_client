@@ -26,7 +26,7 @@ class CRUDPrice:
             )
             raise
 
-    async def get_all(self, ticker: str, session: AsyncSession):
+    async def get_all(self, ticker: str, session: AsyncSession) -> list[Price]:
         try:
             query = select(Price).where(Price.ticker == ticker)
             result = await session.execute(query)
@@ -62,16 +62,18 @@ class CRUDPrice:
     async def get_by_date(
         self,
         ticker: str,
-        start: int | None,
-        end: int | None,
         session: AsyncSession,
-    ):
+        start: int | None = None,
+        end: int | None = None,
+    ) -> list[Price]:
         try:
             query = select(Price).where(Price.ticker == ticker)
-            if start:
+            if start is not None and end is not None and start > end:
+                raise ValueError("Start не может быть больше end")
+            if start is not None:
                 query = query.where(Price.timestamp >= start)
-            if end:
-                query = query.where(Price.timestamp <= start)
+            if end is not None:
+                query = query.where(Price.timestamp <= end)
             result = await session.execute(query)
             prices = result.scalars().all()
             logger.info(f"Получение цены валюты {ticker} с фильтром по дате")
