@@ -28,6 +28,7 @@ services:
 
   worker:
     build: .
+    user: "1001:1001"
     command: celery -A app.celery_app.app worker --loglevel=info
     volumes:
       - .:/app

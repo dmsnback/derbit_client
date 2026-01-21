@@ -23,7 +23,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title=settings.app_title, description=settings.description, lifespan=lifespan
+    title=settings.app_title,
+    description=settings.description,
+    lifespan=lifespan,
 )
 
 crud_price = CRUDPrice()
@@ -43,7 +45,9 @@ async def get_all(ticker: str, session: AsyncSession = Depends(get_session)):
 
 
 @app.get("/latest/{ticker}")
-async def get_latest(ticker: str, session: AsyncSession = Depends(get_session)):
+async def get_latest(
+    ticker: str, session: AsyncSession = Depends(get_session)
+):
     prices = await crud_price.get_latest(ticker, session)
     return prices
 

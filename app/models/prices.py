@@ -10,4 +10,6 @@ class Price(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     ticker: Mapped[str] = mapped_column(String, index=True, nullable=False)
     price: Mapped[float] = mapped_column(Float, nullable=False)
-    timestamp: Mapped[int] = mapped_column(BigInteger, index=True, nullable=False)
+    timestamp: Mapped[int] = mapped_column(
+        BigInteger, index=True, nullable=False
+    )

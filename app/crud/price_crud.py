@@ -14,15 +14,16 @@ class CRUDPrice:
         self, session: AsyncSession, ticker: str, price: float, timestamp: int
     ):
         try:
-            new_price = session.add(
-                Price(ticker=ticker, price=price, timestamp=timestamp)
-            )
+            new_price = Price(ticker=ticker, price=price, timestamp=timestamp)
+            session.add(new_price)
             await session.flush()
             await session.commit()
             logger.info(f"Получение данных по валюте {ticker}")
             return new_price
         except SQLAlchemyError as e:
-            logger.error(f"Ошибка при получении данных по валюте {ticker}: {e}")
+            logger.error(
+                f"Ошибка при получении данных по валюте {ticker}: {e}"
+            )
             raise
 
     async def get_all(self, ticker: str, session: AsyncSession):
@@ -30,7 +31,9 @@ class CRUDPrice:
             query = select(Price).where(Price.ticker == ticker)
             result = await session.execute(query)
             prices = result.scalars().all()
-            logger.info(f"Получение всех сохраненных данных по валюте: {ticker}")
+            logger.info(
+                f"Получение всех сохраненных данных по валюте: {ticker}"
+            )
             return prices
         except SQLAlchemyError as e:
             logger.error(
@@ -51,11 +54,17 @@ class CRUDPrice:
             logger.info(f"Получение последней цены валюты: {ticker}")
             return price
         except SQLAlchemyError as e:
-            logger.error(f"Ошибка получении последней цены валюты {ticker}: {e}")
+            logger.error(
+                f"Ошибка получении последней цены валюты {ticker}: {e}"
+            )
             raise
 
     async def get_by_date(
-        self, ticker: str, start: int | None, end: int | None, session: AsyncSession
+        self,
+        ticker: str,
+        start: int | None,
+        end: int | None,
+        session: AsyncSession,
     ):
         try:
             query = select(Price).where(Price.ticker == ticker)
