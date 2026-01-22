@@ -5,7 +5,7 @@ import time
 import aiohttp
 
 from app.celery_app import app
-from app.core.database import get_session
+from app.core.session import get_session
 from app.crud.price_crud import CRUDPrice
 from app.services.derbit_client import DerbitClient
 
