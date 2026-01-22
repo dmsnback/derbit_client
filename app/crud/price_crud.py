@@ -26,9 +26,17 @@ class CRUDPrice:
             )
             raise
 
-    async def get_all(self, ticker: str, size: int, offset: int, session: AsyncSession) -> list[Price]:
+    async def get_all(
+        self, ticker: str, size: int, offset: int, session: AsyncSession
+    ) -> list[Price]:
         try:
-            query = select(Price).where(Price.ticker == ticker).order_by(Price.timestamp.desc()).limit(size).offset(offset)
+            query = (
+                select(Price)
+                .where(Price.ticker == ticker)
+                .order_by(Price.timestamp.desc())
+                .limit(size)
+                .offset(offset)
+            )
             result = await session.execute(query)
             prices = result.scalars().all()
             logger.info(
@@ -76,7 +84,11 @@ class CRUDPrice:
                 query = query.where(Price.timestamp >= start)
             if end is not None:
                 query = query.where(Price.timestamp <= end)
-            query = (query.order_by(Price.timestamp.desc()).limit(size).offset(offset))
+            query = (
+                query.order_by(Price.timestamp.desc())
+                .limit(size)
+                .offset(offset)
+            )
             result = await session.execute(query)
             prices = result.scalars().all()
             logger.info(f"Получение цены валюты {ticker} с фильтром по дате")
