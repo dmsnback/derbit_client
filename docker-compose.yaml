@@ -15,7 +15,7 @@ services:
       - "6379:6379"
   
   backend:
-    build: .
+    image: dmsn/derbit_client:dev
     restart: always
     depends_on:
       - db
