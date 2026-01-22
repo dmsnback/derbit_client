@@ -8,6 +8,7 @@ from app.schemas.prices import PriceReadSchema
 crud_price = CRUDPrice()
 
 price_router = APIRouter(
+    prefix="/prices",
     tags=["Prices"],
 )
 
@@ -25,9 +26,13 @@ price_router = APIRouter(
 )
 async def get_all(
     ticker: str,
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100),
     session: AsyncSession = Depends(get_session)
 ) -> list[PriceReadSchema]:
-    prices = await crud_price.get_all(ticker, session)
+    ticker = ticker.upper()
+    offset = (page - 1) * size
+    prices = await crud_price.get_all(ticker, size, offset, session)
     try:
         if not prices:
             raise HTTPException(status_code=404, detail="Данные не найдены")
@@ -51,6 +56,7 @@ async def get_latest(
     ticker: str,
     session: AsyncSession = Depends(get_session)
 ) -> PriceReadSchema:
+    ticker = ticker.upper()
     prices = await crud_price.get_latest(ticker, session)
     try:
         if not prices:
@@ -69,10 +75,14 @@ async def get_latest(
 
     Параметры:
     - ticker: Название тикера (BTC_USD, ETH_USD)
+    - start: Начальная дата в формате timestamp
+    - end: Конечная дата в формате timestamp
     """
 )
 async def get_by_date(
     ticker: str,
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100),
     start: int | None = Query(
         default=None,
         description="Начальная дата в формате timestamp"
@@ -84,7 +94,9 @@ async def get_by_date(
     session: AsyncSession = Depends(get_session),
 ) -> list[PriceReadSchema]:
     try:
-        prices = await crud_price.get_by_date(ticker, start, end, session)
+        ticker = ticker.upper()
+        offset = (page - 1) * size
+        prices = await crud_price.get_by_date(ticker, size, offset, session, start, end)
         if not prices:
             raise HTTPException(status_code=404, detail="Данные не найдены")
         return prices
