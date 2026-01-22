@@ -1,0 +1,39 @@
+name: Derbit Client workflow
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint & Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Black check
+        run: black --check .
+
+      - name: Isort check
+        run: isort --check-only .
+
+      - name: Flake8 check
+        run: flake8 .
+
+      - name: Run pytest
+        run: pytest -v

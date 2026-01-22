@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import get_session
+from app.core.session import get_session
 from app.crud.price_crud import CRUDPrice
 from app.schemas.prices import PriceReadSchema
 
