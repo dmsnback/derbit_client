@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import desc, select
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,9 +26,9 @@ class CRUDPrice:
             )
             raise
 
-    async def get_all(self, ticker: str, session: AsyncSession) -> list[Price]:
+    async def get_all(self, ticker: str, size: int, offset: int, session: AsyncSession) -> list[Price]:
         try:
-            query = select(Price).where(Price.ticker == ticker)
+            query = select(Price).where(Price.ticker == ticker).order_by(Price.timestamp.desc()).limit(size).offset(offset)
             result = await session.execute(query)
             prices = result.scalars().all()
             logger.info(
@@ -46,7 +46,7 @@ class CRUDPrice:
             query = (
                 select(Price)
                 .where(Price.ticker == ticker)
-                .order_by(desc(Price.timestamp))
+                .order_by(Price.timestamp.desc())
                 .limit(1)
             )
             result = await session.execute(query)
@@ -62,6 +62,8 @@ class CRUDPrice:
     async def get_by_date(
         self,
         ticker: str,
+        size: int,
+        offset: int,
         session: AsyncSession,
         start: int | None = None,
         end: int | None = None,
@@ -74,6 +76,7 @@ class CRUDPrice:
                 query = query.where(Price.timestamp >= start)
             if end is not None:
                 query = query.where(Price.timestamp <= end)
+            query = (query.order_by(Price.timestamp.desc()).limit(size).offset(offset))
             result = await session.execute(query)
             prices = result.scalars().all()
             logger.info(f"Получение цены валюты {ticker} с фильтром по дате")
