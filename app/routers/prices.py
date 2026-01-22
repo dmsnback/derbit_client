@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
@@ -22,13 +22,13 @@ price_router = APIRouter(
 
     Параметры:
     - ticker: Название тикера (BTC_USD, ETH_USD)
-    """
+    """,
 )
 async def get_all(
     ticker: str,
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> list[PriceReadSchema]:
     ticker = ticker.upper()
     offset = (page - 1) * size
@@ -38,7 +38,9 @@ async def get_all(
             raise HTTPException(status_code=404, detail="Данные не найдены")
         return prices
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Внутренняя ошибка сервера: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Внутренняя ошибка сервера: {e}"
+        )
 
 
 @price_router.get(
@@ -50,11 +52,10 @@ async def get_all(
 
     Параметры:
     - ticker: Название тикера (BTC_USD, ETH_USD)
-    """
+    """,
 )
 async def get_latest(
-    ticker: str,
-    session: AsyncSession = Depends(get_session)
+    ticker: str, session: AsyncSession = Depends(get_session)
 ) -> PriceReadSchema:
     ticker = ticker.upper()
     prices = await crud_price.get_latest(ticker, session)
@@ -63,7 +64,9 @@ async def get_latest(
             raise HTTPException(status_code=404, detail="Данные не найдены")
         return prices
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Внутренняя ошибка сервера: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Внутренняя ошибка сервера: {e}"
+        )
 
 
 @price_router.get(
@@ -77,30 +80,32 @@ async def get_latest(
     - ticker: Название тикера (BTC_USD, ETH_USD)
     - start: Начальная дата в формате timestamp
     - end: Конечная дата в формате timestamp
-    """
+    """,
 )
 async def get_by_date(
     ticker: str,
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
     start: int | None = Query(
-        default=None,
-        description="Начальная дата в формате timestamp"
+        default=None, description="Начальная дата в формате timestamp"
     ),
     end: int | None = Query(
-        default=None,
-        description="Конечная дата в формате timestamp"
+        default=None, description="Конечная дата в формате timestamp"
     ),
     session: AsyncSession = Depends(get_session),
 ) -> list[PriceReadSchema]:
     try:
         ticker = ticker.upper()
         offset = (page - 1) * size
-        prices = await crud_price.get_by_date(ticker, size, offset, session, start, end)
+        prices = await crud_price.get_by_date(
+            ticker, size, offset, session, start, end
+        )
         if not prices:
             raise HTTPException(status_code=404, detail="Данные не найдены")
         return prices
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Внутренняя ошибка сервера: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Внутренняя ошибка сервера: {e}"
+        )
