@@ -15,7 +15,7 @@ app.autodiscover_tasks(["app.worker"])
 app.conf.beat_schedule = {
     "fetch_prices_every_minute": {
         "task": "app.worker.tasks.fetch_prices",
-        "schedule": 20.0,
+        "schedule": 60.0,
     }
 }
 
